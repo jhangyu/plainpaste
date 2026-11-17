@@ -1,0 +1,11 @@
+/dist/
+/build/
+/scratch/
+__pycache__/
+/docs/logs/
+.DS_Store
+.env
+.env.*
+*.env
+/scripts/gen_slint_icons.py
+/.claude/

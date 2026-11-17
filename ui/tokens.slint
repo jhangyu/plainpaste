@@ -1,0 +1,89 @@
+import { Palette } from "std-widgets.slint";
+
+// Fluent 2 tokens from the mockup. `dark` follows the active Fluent palette, which
+// Rust drives through Palette.color-scheme (unknown = follow the system).
+export global Tokens {
+    out property <bool> dark: Palette.background.to-hsv().value < 0.5;
+    // The five neutral grays of the app. Dark: Material 3 neutral tones 90/12/17/22/32 (source #0f6cbd).
+    out property <color> gray-text: dark ? #e1e2e9 : #242424;
+    out property <color> gray-bg-1: dark ? #1d2024 : #f3f3f3;
+    out property <color> gray-bg-2: dark ? #272a2f : #ffffff;
+    out property <color> gray-bg-3: dark ? #32353a : #ebebeb;
+    out property <color> gray-border: dark ? #494b51 : #d1d1d1;
+    // Every other neutral token below is one of the five.
+    out property <color> flyout: gray-bg-1;
+    out property <color> flyout-stroke: gray-border;
+    out property <color> card: gray-bg-2;
+    out property <color> card-stroke: gray-border;
+    out property <color> fg: gray-text;
+    out property <color> input: gray-bg-1;
+    out property <color> input-stroke: gray-border;
+    out property <color> input-bottom: gray-border;
+    out property <color> btn: gray-bg-3;
+    out property <color> btn-hover: btn.mix(gray-text, 8%);
+    out property <color> btn-press: btn.mix(gray-text, 12%);
+    out property <color> btn-stroke: gray-border;
+    out property <color> sub: gray-bg-1;
+    out property <color> sub-stroke: gray-border;
+    out property <color> brand: dark ? #89ade1 : #0f6cbd;
+    out property <color> brand-hover: dark ? #7ea1d4 : #115ea3;
+    out property <color> brand-press: dark ? #799ccd : #0c3b5e;
+    out property <color> on-brand: dark ? #001c39 : #ffffff;
+    out property <color> brand-tint: dark ? #0c3a67 : #ebf3fc;
+    out property <color> ok: dark ? #78da9d : #107c10;
+    out property <color> ok-bg: dark ? #004526 : #dff6dd;
+    out property <color> warn: dark ? #ffb4a8 : #bc4b09;
+    out property <color> warn-bg: dark ? #781009 : #fdf6f3;
+    out property <color> warn-stroke: dark ? #ed6654 : #f4bfab;
+    out property <color> danger: dark ? #ffb4ab : #c50f1f;
+    out property <color> keycap: gray-bg-3;
+    out property <color> keycap-stroke: gray-border;
+    out property <color> switch-off: gray-border;
+    out property <color> seg: gray-bg-1;
+    out property <color> seg-on: dark ? #3c4758 : gray-bg-2;
+
+    // Layout tokens (mockup :root layout block).
+    out property <length> r-panel: 20px;
+    out property <length> r-card: 16px;
+    out property <length> r-inner: 12px;
+    out property <length> radius-control: 8px;
+    out property <length> r-thumb: 6px;
+    out property <length> r-tile: 10px;
+    out property <length> space-1: 4px;
+    out property <length> space-2: 8px;
+    out property <length> space-3: 12px;
+    out property <length> space-4: 16px;
+    out property <length> gap-title: 2px;
+    // Semantic spacing roles. Use these, not space-N, outside Tokens.
+    out property <length> pad-panel: space-4;   // 16: flyout panel inner padding
+    out property <length> pad-card: space-4;    // 16: card inner padding
+    out property <length> gap-stack: space-3;   // 12: between panel children, card header -> card body
+    out property <length> gap-row: space-3;     // 12: between items of a horizontal row (tile, label, value, switch, pill)
+    out property <length> gap-body: space-2;    //  8: inside a card body (field -> button)
+    out property <length> gap-icon: space-2;    //  8: icon -> label inside any button, segment, badge or field
+    out property <length> gap-tight: space-1;   //  4: preview lines, preview box -> arrow, keycap groups and "+", error hint -> hint
+    out property <length> pad-ctl: space-3;     // 12: horizontal padding of buttons, pills, badges, preview box inset
+    out property <length> padding-control-small: space-2;   //  8: horizontal padding of keycaps and the hotkey field
+    out property <length> indent-tile-center: tile / 2;     // 16: x of the card header tile's center; card hints start here
+    out property <length> control-h: 32px;
+    out property <length> control-h-lg: 40px;
+    out property <length> keycap-h: 28px;
+    out property <length> chip-h: 24px;
+    out property <length> tile: 32px;
+    out property <length> icon: 20px;
+    out property <length> icon-s: 16px;
+    out property <length> switch-width: 40px;
+    out property <length> switch-height: 20px;
+    out property <length> thumb-off: 12px;
+    out property <length> thumb-on: 14px;
+    out property <length> segment-padding: 2px;
+    out property <length> flyout-w: 320px;
+    out property <length> caret: 10px;
+    out property <length> caret-right: 86px;
+    out property <length> preview-min: 80px;
+    out property <length> arrow-w: 20px;
+    out property <length> text-body: 14px;
+    out property <length> text-small: 12px;
+    out property <length> text-btn: 13px;
+    out property <length> text-caption: 11px;
+}

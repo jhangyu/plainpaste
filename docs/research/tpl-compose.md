@@ -1,0 +1,44 @@
+# KMP + Compose Multiplatform: templates & design-system resources (checked 2026-11-16)
+
+[V] = status checked this session (gh API / web search). [U] = not fully verified. Stars are approximate.
+
+| Name | Category | Pairs with | Maintainer | Status 2025-26 | URL |
+|---|---|---|---|---|---|
+| Kotlin Multiplatform Wizard (kmp.jetbrains.com, also built into IntelliJ/Android Studio KMP plugin) [V] | starter template (generator) | Compose Multiplatform (shared UI), Jetpack Compose + SwiftUI (native UI), Android/iOS/Desktop/Web/Server | JetBrains (org). New default structure `sharedLogic`/`sharedUI` published May 2026 | Active; AGP 9 support needs IntelliJ 2026.1.2+ | https://kmp.jetbrains.com/ |
+| Kotlin/KMP-App-Template [V] | starter template | CMP shared UI; androidApp, desktopApp, iosApp, webApp, shared; Koin 4.2, Ktor 3.5, Coil 3.5, AndroidX Navigation | Kotlin org (JetBrains-owned), 8 contributors | pushed 2026-11-06, ~700 stars, no GitHub releases | https://github.com/Kotlin/KMP-App-Template |
+| Kotlin/multiplatform-library-template [V] | starter template (library) | Library publishing, KMP | Kotlin org | pushed 2026-08-07, ~340 stars | https://github.com/Kotlin/multiplatform-library-template |
+| touchlab/KaMPKit [V] | starter template | Koin, Ktor, SQLDelight, Android + iOS (**no desktop target; mobile only**, native UI) | Touchlab (company), 24 contributors | pushed 2026-10-26 (Dependabot bumps), ~2.4k stars, no releases | https://github.com/touchlab/KaMPKit |
+| JetBrains/compose-multiplatform-template and compose-multiplatform-desktop-template [V] | starter template (obsolete) | CMP | JetBrains. First is archived (last push 2023-12); desktop template marked obsolete in favor of the wizard | **Stale/archived. Do not use** | https://github.com/JetBrains/compose-multiplatform-template |
+| joreilly/PeopleInSpace [V] | starter template (large sample app) | Compose Multiplatform, Android/iOS/Desktop/Web/wearOS, SQLDelight, Koin | Single person (John O'Reilly, Google dev) | pushed 2026-11-14, ~3.4k stars | https://github.com/joreilly/PeopleInSpace |
+| Material 3 Design Kit (Figma Community) [V] | Figma kit | Material 3 / M3 Expressive; Compose Material 3 | Google Material Design team (official) | Updated May 2025 for M3 Expressive (button groups, FAB menu, split button, toolbars, spring motion, 35 new shapes) | https://www.figma.com/community/file/1035203688168086460/material-3-design-kit |
+| Material Theme Builder (Figma plugin and web) [V] | theme tool | Compose M3, Android Views; exports theme code and design tokens (DSP) | Google (official) | Current; paired with the M3 kit | https://m3.material.io/blog/material-theme-builder |
+| jordond/MaterialKolor [V] | theme tool | Compose Multiplatform Material 3 dynamic color scheme from a seed color (Android, Desktop, iOS, Web) | **Single maintainer** (5 contributors) | 6.0.0 on 2026-10-15, pushed 2026-11-14, ~970 stars | https://github.com/jordond/MaterialKolor |
+| Compose Multiplatform (Material 3 and foundation, JetBrains) [V] | component lib / UI SDK | Material 3 on Android/Desktop/iOS/Web; M3 Expressive tracks upstream Compose (Compose 1.12 / 1.13-rc, 2026-11) | JetBrains (org), 100+ contributors | v1.12.2 on 2026-10-15, pushed today, ~19.5k stars | https://github.com/JetBrains/compose-multiplatform |
+| composablehorizons/compose-unstyled [V] | design system base (headless components) | CMP on Android/Desktop/iOS/Web; build your own theme on top, no styling bundled | Org (Composable Horizons), 12 contributors | 2.10.2 on 2026-10-28, pushed 2026-11-16, ~1.3k stars | https://github.com/composablehorizons/compose-unstyled |
+| Jewel (JetBrains) [V] | component lib / design system | CMP Desktop with IntelliJ "Int UI" look (standalone theme `jewel-int-ui-standalone`, `decorated-window` module for custom title bars) | JetBrains (org). **Old repo JetBrains/jewel archived; development moved to `platform/jewel` in intellij-community** | Active in intellij-community; standalone artifact 0.42.0-263.x per jewel-ui.dev; desktop-only (no Android) | https://github.com/JetBrains/intellij-community/tree/master/platform/jewel |
+| Konyaco/compose-fluent-ui [V] | component lib / design system | Fluent (Windows 11 look) for CMP Desktop/Android | Org account but small (8 contributors), looks like a hobby project | v0.1.0 on 2025-08-10, pushed 2026-10-30, ~745 stars. **Pre-1.0, single-lead risk** | https://github.com/Konyaco/compose-fluent-ui |
+| alexzhirkevich/compose-cupertino [V] | component lib | iOS Cupertino look for CMP (not needed for Android/macOS/Windows targets) | **Single maintainer** (11 contributors) | Last release 0.1.0-alpha04 on 2024-04; pushed 2025-10 | https://github.com/alexzhirkevich/compose-cupertino |
+| MohamedRejeb/Calf [V] | component lib (native-ish adaptive UI, file picker, WebView, permissions) | CMP Android/iOS/Desktop/Web | **Single lead** (34 contributors) | v0.14.0 on 2026-09-13, pushed 2026-11-12, ~1.8k stars | https://github.com/MohamedRejeb/Calf |
+| chrisbanes/haze [V] | component lib (blur / glassmorphism) | CMP all targets, Material 3 surfaces | Single lead (Chris Banes, Google), 28 contributors | 2.1.0 on 2026-11-02, pushed 2026-11-15, ~2.7k stars | https://github.com/chrisbanes/haze |
+| mikepenz/multiplatform-markdown-renderer [V] | component lib | CMP Markdown rendering with M3 theme | Single lead (30 contributors) | v0.46.0 on 2026-10-13, pushed 2026-11-15, ~1.1k stars | https://github.com/mikepenz/multiplatform-markdown-renderer |
+| arkivanov/Decompose [V] | tooling (navigation/lifecycle) | CMP Android/Desktop, UI-agnostic | Single lead (43 contributors) | 3.6.2 on 2026-11-10, ~2.9k stars | https://github.com/arkivanov/Decompose |
+| adrielcafe/voyager [V] | tooling (navigation) | CMP | Single maintainer (30 contributors) | **Stale**: last release 1.0.1 on 2024-12; pushed 2026-06; ~3.1k stars | https://github.com/adrielcafe/voyager |
+| InsertKoinIO/koin [V] | tooling (DI) | CMP, Ktor, Room/SQLDelight | Org (Kotzilla-backed) | Pushed 2026-11-06, ~10k stars; used by KMP-App-Template | https://github.com/InsertKoinIO/koin |
+| cashapp/sqldelight [V] | tooling (DB) | KMP Android/Desktop JVM (SQLite) | Cash App org | Pushed 2026-11-12, ~6.9k stars | https://github.com/cashapp/sqldelight |
+| JetBrains/compose-hot-reload [V] | tooling | CMP Desktop dev loop | JetBrains org, 25 contributors | v1.3.0-rc01 on 2026-10-30, ~1.4k stars | https://github.com/JetBrains/compose-hot-reload |
+| kdroidFilter/ComposeNativeTray [V] | tooling (desktop tray) | CMP Desktop (macOS, Windows, Linux) | Small org (kdroidFilter), 10 contributors | v2.1.7 on 2026-09-30, ~400 stars | https://github.com/kdroidFilter/ComposeNativeTray |
+| JetBrains Runtime (JBR) [V] | tooling (desktop JVM runtime) | CMP Desktop; used by custom window decorations | JetBrains org | jbr-release-25.0.4.1b329.142 on 2026-10-28, ~2k stars | https://github.com/JetBrains/JetBrainsRuntime |
+| Hydraulic Conveyor [V] | tooling (packaging) | CMP Desktop installers (MSIX/DMG/deb) with auto-update | Hydraulic (company), 8 contributors | pushed 2026-11-08, ~190 stars. Closed-source product, free for open-source use. License terms [U] | https://github.com/hydraulic-software/conveyor |
+| Compose Multiplatform Gradle plugin `nativeDistributions` (jpackage) [U] | tooling (packaging) | CMP Desktop: dmg, msi, exe, deb via jpackage | JetBrains | Part of compose-multiplatform repo; per-OS build only (macOS dmg must be built on macOS) [U, from memory] | https://github.com/JetBrains/compose-multiplatform |
+| Kyant0/AndroidLiquidGlass [V] | component lib (liquid glass effect) | CMP, Android-first | Single maintainer | pushed 2026-11-12, ~4.7k stars | https://github.com/Kyant0/AndroidLiquidGlass |
+
+Not found: "Lumo UI" Compose library (gh search returned nothing, so it is omitted). No Compose-Unstyled theme repo found on GitHub search [U].
+
+## Top picks for Android + macOS + Windows
+1. **Kotlin Multiplatform Wizard (kmp.jetbrains.com) + Kotlin/KMP-App-Template**: official, shared UI, desktopApp and androidApp included, Koin, Ktor, Coil, and Navigation already wired. Add Room or SQLDelight yourself.
+2. **Compose Multiplatform Material 3 + Material 3 Design Kit (Figma) + Material Theme Builder**: the only official design-to-code chain, and it covers all three target platforms.
+3. **MaterialKolor**: dynamic color from a seed on all targets. Single maintainer, but it is small and easy to replace.
+4. **compose-unstyled**: pick it if you want a fully custom design system. It is actively released and has 12 contributors.
+5. **Hydraulic Conveyor or Compose Gradle `nativeDistributions`** for Windows/macOS installers. Jewel only if the app should look like a JetBrains IDE (desktop only).
+
+Avoid: voyager (no release in about 2 years), compose-cupertino (iOS-only, alpha), compose-multiplatform-template (archived), KaMPKit (no desktop target).

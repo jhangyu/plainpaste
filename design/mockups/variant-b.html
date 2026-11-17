@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="zh-TW" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PlainPaste — Variant B 系統匣浮窗</title>
+<style>
+/* ---------- Fluent 2 tokens: light (primary) ---------- */
+:root,:root[data-theme="light"]{
+  color-scheme:light;
+  --desk:linear-gradient(135deg,#cfe0f7 0%,#e6dcf5 55%,#f9e3d3 100%);
+  --bar:#f6f6f6; --bar-stroke:rgba(0,0,0,.08); --bar-fg:#242424; --tray-on:rgba(0,0,0,.09);
+  --flyout:#f3f3f3; --flyout-stroke:rgba(0,0,0,.1);
+  --card:#ffffff; --card-stroke:rgba(0,0,0,.07);
+  --fg1:#242424; --fg2:#525252; --fg3:#707070;
+  --input:#ffffff; --input-stroke:#d1d1d1; --input-bottom:#616161;
+  --btn:#ffffff; --btn-hover:#f5f5f5; --btn-press:#e0e0e0; --btn-stroke:#d1d1d1;
+  --sub:#f5f5f5; --sub-stroke:#ebebeb;
+  --brand:#0f6cbd; --brand-hover:#115ea3; --brand-press:#0c3b5e; --on-brand:#ffffff; --brand-tint:#ebf3fc;
+  --ok:#107c10; --ok-bg:#dff6dd; --warn:#bc4b09; --warn-bg:#fdf6f3; --warn-stroke:#f4bfab;
+  --danger:#c50f1f; --danger-bg:#fdf3f4;
+  --keycap:#fafafa; --keycap-stroke:#d1d1d1; --keycap-bottom:#b3b3b3;
+  --switch-off:#616161; --focus:#242424;
+  --shadow:0 8px 16px rgba(0,0,0,.14),0 0 2px rgba(0,0,0,.12);
+  --seg:#ebebeb; --seg-on:#ffffff; --seg-on-shadow:0 1px 2px rgba(0,0,0,.14),0 0 2px rgba(0,0,0,.06);
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --desk:linear-gradient(135deg,#0b1a33 0%,#1c1a3a 55%,#2b1b2d 100%);
+  --bar:#2b2b2b; --bar-stroke:rgba(255,255,255,.08); --bar-fg:#ffffff; --tray-on:rgba(255,255,255,.16);
+  --flyout:#2b2b2b; --flyout-stroke:rgba(255,255,255,.12);
+  --card:#363636; --card-stroke:rgba(255,255,255,.07);
+  --fg1:#ffffff; --fg2:#d6d6d6; --fg3:#adadad;
+  --input:#3d3d3d; --input-stroke:#5c5c5c; --input-bottom:#c2c2c2;
+  --btn:#404040; --btn-hover:#4a4a4a; --btn-press:#363636; --btn-stroke:#5c5c5c;
+  --sub:#2b2b2b; --sub-stroke:#424242;
+  --brand:#479ef5; --brand-hover:#62abf5; --brand-press:#2886de; --on-brand:#00182f; --brand-tint:#1f3a57;
+  --ok:#6ccb5f; --ok-bg:#1d3a1b; --warn:#f9a66a; --warn-bg:#3d2a1b; --warn-stroke:#6b4a2e;
+  --danger:#f1707b; --danger-bg:#4a2328;
+  --keycap:#454545; --keycap-stroke:#5c5c5c; --keycap-bottom:#262626;
+  --switch-off:#d6d6d6; --focus:#ffffff;
+  --shadow:0 8px 16px rgba(0,0,0,.4),0 0 2px rgba(0,0,0,.5);
+  --seg:#262626; --seg-on:#4a4a4a; --seg-on-shadow:0 1px 2px rgba(0,0,0,.4);
+}
+@media (prefers-color-scheme:dark){
+:root[data-theme="system"]{
+  color-scheme:dark;
+  --desk:linear-gradient(135deg,#0b1a33 0%,#1c1a3a 55%,#2b1b2d 100%);
+  --bar:#2b2b2b; --bar-stroke:rgba(255,255,255,.08); --bar-fg:#ffffff; --tray-on:rgba(255,255,255,.16);
+  --flyout:#2b2b2b; --flyout-stroke:rgba(255,255,255,.12);
+  --card:#363636; --card-stroke:rgba(255,255,255,.07);
+  --fg1:#ffffff; --fg2:#d6d6d6; --fg3:#adadad;
+  --input:#3d3d3d; --input-stroke:#5c5c5c; --input-bottom:#c2c2c2;
+  --btn:#404040; --btn-hover:#4a4a4a; --btn-press:#363636; --btn-stroke:#5c5c5c;
+  --sub:#2b2b2b; --sub-stroke:#424242;
+  --brand:#479ef5; --brand-hover:#62abf5; --brand-press:#2886de; --on-brand:#00182f; --brand-tint:#1f3a57;
+  --ok:#6ccb5f; --ok-bg:#1d3a1b; --warn:#f9a66a; --warn-bg:#3d2a1b; --warn-stroke:#6b4a2e;
+  --danger:#f1707b; --danger-bg:#4a2328;
+  --keycap:#454545; --keycap-stroke:#5c5c5c; --keycap-bottom:#262626;
+  --switch-off:#d6d6d6; --focus:#ffffff;
+  --shadow:0 8px 16px rgba(0,0,0,.4),0 0 2px rgba(0,0,0,.5);
+  --seg:#262626; --seg-on:#4a4a4a; --seg-on-shadow:0 1px 2px rgba(0,0,0,.4);
+}}
+:root[data-theme="system"]{color-scheme:light dark}
+
+/* ---------- layout tokens (the only place raw px values live) ---------- */
+:root{
+  --r-panel:20px; --r-card:16px; --r-inner:12px; --r-ctl:8px; --r-thumb:6px; --r-tile:10px; --r-full:999px;
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px; --space-6:24px;
+  --gap-title:2px;
+  --control-h:32px; --control-h-lg:40px; --keycap-h:28px; --chip-h:24px; --tile:32px; --icon:20px; --icon-s:16px;
+  --sw-w:40px; --sw-h:20px; --thumb-off:12px; --thumb-on:14px; --seg-pad:2px;
+  --bar-h:32px; --flyout-w:320px; --stage-w:780px; --clock-w:64px; --tray-w:28px; --tray-h:24px;
+  --caret:10px; --caret-right:86px; --preview-min:80px; --arrow-w:20px;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--desk) fixed;color:var(--fg1);
+  font:14px/1.43 "Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",sans-serif;
+  -webkit-font-smoothing:antialiased}
+.ic{width:var(--icon);height:var(--icon);fill:currentColor;flex:none;display:block}
+.ic.s{width:var(--icon-s);height:var(--icon-s)}
+
+/* ---------- menu bar ---------- */
+.menubar{height:var(--bar-h);background:var(--bar);border-bottom:1px solid var(--bar-stroke);color:var(--bar-fg)}
+.inner{max-width:var(--stage-w);margin:0 auto;padding:0 var(--space-4)}
+.menubar .inner{height:100%;display:flex;align-items:center;justify-content:flex-end;gap:var(--space-3);font-size:12px}
+.menubar .sys{display:flex;align-items:center;gap:var(--space-3);opacity:.9}
+.tray{width:var(--tray-w);height:var(--tray-h);border-radius:var(--r-thumb);display:inline-flex;align-items:center;justify-content:center;background:var(--tray-on);color:var(--bar-fg)}
+.clock{width:var(--clock-w);text-align:right}
+
+/* ---------- stage ---------- */
+.stage{padding-block:var(--space-3) var(--space-6);display:flex;flex-wrap:wrap;gap:var(--space-6);justify-content:flex-end;align-items:flex-start}
+.col{display:flex;flex-direction:column;gap:var(--space-3);align-items:flex-start}
+.cap{font-size:12px;line-height:1.33;color:var(--fg2);background:var(--card);border:1px solid var(--card-stroke);padding:var(--space-1) var(--space-3);border-radius:var(--r-full)}
+
+/* ---------- flyout ---------- */
+.flyout{position:relative;width:var(--flyout-w);background:var(--flyout);border:1px solid var(--flyout-stroke);border-radius:var(--r-panel);box-shadow:var(--shadow);padding:var(--space-4);display:flex;flex-direction:column;gap:var(--space-3)}
+.flyout.anchored::before{content:"";position:absolute;top:calc(var(--caret) / -2 - 1px);right:var(--caret-right);width:var(--caret);height:var(--caret);background:var(--flyout);border-left:1px solid var(--flyout-stroke);border-top:1px solid var(--flyout-stroke);transform:rotate(45deg)}
+.head{display:flex;align-items:center;gap:var(--space-3)}
+.logo{width:var(--tile);height:var(--tile);border-radius:var(--r-tile);background:var(--brand);color:var(--on-brand);display:inline-flex;align-items:center;justify-content:center;flex:none}
+.title{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--gap-title)}
+.title b{font-size:14px;line-height:1.43;font-weight:600}
+.title span{font-size:12px;line-height:1.33;color:var(--fg3)}
+.pill{display:inline-flex;align-items:center;justify-content:center;height:var(--chip-h);padding:0 var(--space-3);border-radius:var(--r-full);background:var(--brand-tint);color:var(--brand);font-size:12px;font-weight:600;line-height:1}
+
+.card{background:var(--card);border:1px solid var(--card-stroke);border-radius:var(--r-card);padding:var(--space-4);display:flex;flex-direction:column;gap:var(--space-3)}
+.body{display:flex;flex-direction:column;gap:var(--space-2)}
+.row{display:flex;align-items:center;gap:var(--space-3)}
+.row.split{justify-content:space-between}
+.tile{width:var(--tile);height:var(--tile);border-radius:var(--r-tile);background:var(--brand-tint);color:var(--brand);display:flex;align-items:center;justify-content:center;flex:none}
+.tile.ok{background:var(--ok-bg);color:var(--ok)}
+.tile.warn{background:var(--warn-bg);color:var(--warn)}
+.rl{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--gap-title)}
+.rl b{font-weight:600;font-size:14px;line-height:1.43}
+.rl span{white-space:nowrap;font-size:12px;line-height:1.33;color:var(--fg2)}
+.hint{margin:0;font-size:12px;line-height:1.4;color:var(--fg2)}
+.tag{display:inline-flex;align-items:center;height:var(--chip-h);padding:0 var(--space-2);font-size:12px;line-height:1;color:var(--fg3);border:1px solid var(--sub-stroke);border-radius:var(--r-full);white-space:nowrap}
+
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+.btn{height:var(--control-h);padding:0 var(--space-3);border-radius:var(--r-ctl);border:1px solid var(--btn-stroke);background:var(--btn);color:var(--fg1);display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);white-space:nowrap;font-size:13px;line-height:1}
+.btn:hover{background:var(--btn-hover)} .btn:active{background:var(--btn-press)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--on-brand);font-weight:600}
+.btn.primary:hover{background:var(--brand-hover);border-color:var(--brand-hover)}
+.btn.primary:active{background:var(--brand-press);border-color:var(--brand-press)}
+
+/* hotkey recorder */
+.hk{display:flex;gap:var(--space-2)}
+.hk{align-items:center}
+.hk .btn{height:var(--control-h-lg)}
+.keys{flex:1;min-width:0;height:var(--control-h-lg);border-radius:var(--r-ctl);border:1px solid var(--input-stroke);border-bottom:2px solid var(--input-bottom);background:var(--input);display:flex;align-items:center;justify-content:center;gap:var(--space-2);padding:0 var(--space-3);color:var(--fg1);font-size:13px;line-height:1}
+.keys:hover{border-bottom-color:var(--brand)}
+.keys .plus{color:var(--fg3);font-size:12px}
+kbd{display:inline-flex;align-items:center;justify-content:center;height:var(--keycap-h);min-width:var(--keycap-h);padding:0 var(--space-2);font-family:inherit;font-size:12px;font-weight:600;line-height:1;border:1px solid var(--keycap-stroke);border-bottom:2px solid var(--keycap-bottom);border-radius:var(--r-thumb);background:var(--keycap);color:var(--fg1)}
+.keys.rec{border-color:var(--brand);border-bottom:2px solid var(--brand);background:var(--brand-tint);color:var(--brand);font-weight:600}
+.keys.rec .rd{color:var(--danger)}
+
+/* switch */
+.sw{width:var(--sw-w);height:var(--sw-h);border-radius:var(--r-full);border:1px solid var(--switch-off);background:transparent;position:relative;padding:0;flex:none}
+.sw::after{content:"";position:absolute;top:50%;left:calc((var(--sw-h) - var(--thumb-off)) / 2 - 1px);width:var(--thumb-off);height:var(--thumb-off);transform:translateY(-50%);border-radius:var(--r-full);background:var(--switch-off)}
+.sw[aria-checked="true"]{background:var(--brand);border-color:var(--brand)}
+.sw[aria-checked="true"]::after{left:auto;right:calc((var(--sw-h) - var(--thumb-on)) / 2 - 1px);width:var(--thumb-on);height:var(--thumb-on);background:var(--on-brand)}
+.swl{font-size:12px;line-height:1;color:var(--fg2)}
+
+/* preview */
+.pv{display:grid;grid-template-columns:minmax(0,1fr) var(--arrow-w) minmax(0,1fr);gap:var(--space-1);align-items:stretch}
+.box{display:flex;flex-direction:column;gap:var(--space-1);background:var(--sub);border:1px solid var(--sub-stroke);border-radius:var(--r-inner);padding:var(--space-3) var(--space-2);min-height:var(--preview-min);font-size:12px;line-height:1.5;white-space:nowrap}
+.box small{font-size:11px;line-height:1.3;color:var(--fg3);font-weight:600}
+.ar{display:flex;align-items:center;justify-content:center;color:var(--fg3)}
+.sp{display:inline-block;width:.5em;height:.75em;margin:0;background:var(--brand);opacity:.35;border-radius:var(--r-thumb);vertical-align:middle}
+
+/* segmented */
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--seg-pad);height:var(--control-h);background:var(--seg);border-radius:var(--r-ctl);padding:var(--seg-pad)}
+.seg button{height:100%;border:1px solid transparent;border-radius:var(--r-thumb);background:transparent;color:var(--fg2);display:flex;align-items:center;justify-content:center;gap:var(--space-1);font-size:12px;line-height:1;padding:0;white-space:nowrap}
+.seg button:hover{color:var(--fg1)}
+.seg button[aria-checked="true"]{background:var(--seg-on);color:var(--fg1);font-weight:600;box-shadow:var(--seg-on-shadow);border-color:var(--card-stroke)}
+.seg button[aria-checked="true"] .ic{color:var(--brand)}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:var(--space-1);height:var(--chip-h);padding:0 var(--space-3) 0 var(--space-2);border-radius:var(--r-full);font-size:12px;font-weight:600;line-height:1}
+.badge.ok{background:var(--ok-bg);color:var(--ok)}
+.badge.no{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-stroke)}
+.foot{display:flex;justify-content:flex-end;align-items:center}
+</style>
+</head>
+<body>
+
+<!-- Fluent UI System Icons (MIT), 20px regular/filled, paths verbatim from @fluentui/svg-icons -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-keyboard" viewBox="0 0 20 20"><path d="M5 12.5c0-.28.22-.5.5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M11.5 8a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5m3.75-.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0M5.5 8a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5m2.25 1.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m2.25.75A.75.75 0 1 0 10 9a.75.75 0 0 0 0 1.5m3.76-.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0M8.5 8a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5M2 5.5C2 4.67 2.67 4 3.5 4h13c.83 0 1.5.67 1.5 1.5v8c0 .83-.67 1.5-1.5 1.5h-13A1.5 1.5 0 0 1 2 13.5zM3.5 5a.5.5 0 0 0-.5.5v8c0 .28.22.5.5.5h13a.5.5 0 0 0 .5-.5v-8a.5.5 0 0 0-.5-.5z"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 20 20"><path d="M5 2.5a.5.5 0 0 0-1 0v4.9c0 .33.27.6.6.6h4.9a.5.5 0 0 0 0-1H5.9l3.48-3.02a4 4 0 0 1 5.25 6.04l-8.17 7.1a.5.5 0 0 0 .65.76l8.17-7.1a5 5 0 0 0-6.56-7.55L5 6.46V2.5Z"/></symbol>
+  <symbol id="i-reset"viewBox="0 0 20 20"><path d="M5.85 2.65c.2.2.2.5 0 .7L4.21 5H11a6 6 0 1 1-6 6 .5.5 0 0 1 1 0 5 5 0 1 0 5-5H4.2l1.65 1.65a.5.5 0 1 1-.7.7l-2.5-2.5a.5.5 0 0 1 0-.7l2.5-2.5c.2-.2.5-.2.7 0"/></symbol>
+  <symbol id="i-wrap" viewBox="0 0 20 20"><path d="M2 4.5c0-.28.22-.5.5-.5h15a.5.5 0 0 1 0 1h-15a.5.5 0 0 1-.5-.5m0 5c0-.28.22-.5.5-.5H16a3 3 0 1 1 0 6h-4.3l.65.65a.5.5 0 0 1-.7.7l-1.5-1.5a.5.5 0 0 1 0-.7l1.5-1.5a.5.5 0 0 1 .7.7l-.64.65H16a2 2 0 1 0 0-4H2.5a.5.5 0 0 1-.5-.5m0 5c0-.28.22-.5.5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/></symbol>
+  <symbol id="i-shield-ok" viewBox="0 0 20 20"><path d="M9.72 2.08a.5.5 0 0 1 .56 0q2.9 1.94 6.3 2.43A.5.5 0 0 1 17 5v4.6q-.48-.25-1-.4V5.44a16 16 0 0 1-5.6-2.08L10 3.1l-.4.25A16 16 0 0 1 4 5.43V9.5c0 3.24 1.8 5.64 5.48 7.25q.3.65.74 1.2l-.04.02a.5.5 0 0 1-.36 0C5.31 16.23 3 13.39 3 9.5V5a.5.5 0 0 1 .43-.5 15 15 0 0 0 6.3-2.42M19 14.5a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0m-2.15-1.85a.5.5 0 0 0-.7 0l-2.65 2.64-.65-.64a.5.5 0 0 0-.7.7l1 1c.2.2.5.2.7 0l3-3a.5.5 0 0 0 0-.7"/></symbol>
+  <symbol id="i-shield-err" viewBox="0 0 20 20"><path d="M10 6c.28 0 .5.22.5.5v5a.5.5 0 0 1-1 0v-5c0-.28.22-.5.5-.5m0 8.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5M9.72 2.08a.5.5 0 0 1 .56 0q2.9 1.94 6.3 2.43A.5.5 0 0 1 17 5v4.5c0 3.9-2.3 6.73-6.82 8.47a.5.5 0 0 1-.36 0C5.31 16.23 3 13.39 3 9.5V5a.5.5 0 0 1 .43-.5 15 15 0 0 0 6.3-2.42M9.6 3.35A16 16 0 0 1 4 5.43V9.5c0 3.4 1.97 5.86 6 7.46 4.03-1.6 6-4.07 6-7.46V5.43a16 16 0 0 1-5.6-2.08L10 3.1z"/></symbol>
+  <symbol id="i-power" viewBox="0 0 20 20"><path d="M10.5 2.5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0zM13.74 4a.5.5 0 1 0-.5.87 6.5 6.5 0 1 1-6.49 0 .5.5 0 1 0-.5-.87 7.5 7.5 0 1 0 7.5 0"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 20 20"><path d="M15.5 13.5A6.98 6.98 0 0 1 4 14.39c2.83-1.09 4.56-2.42 5.6-4.4 1.04-2 1.33-4.16.75-6.9q1.36.17 2.58.87a7 7 0 0 1 2.55 9.54M5.45 16.92A7.98 7.98 0 1 0 9.88 2.04a.6.6 0 0 0-.61.73c.69 2.82.43 4.88-.55 6.76-.94 1.78-2.55 3.03-5.55 4.1a.6.6 0 0 0-.3.9 8 8 0 0 0 2.59 2.39"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 20 20"><path d="M10 2c.28 0 .5.22.5.5v1a.5.5 0 0 1-1 0v-1c0-.28.22-.5.5-.5m0 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m0-1a3 3 0 1 1 0-6 3 3 0 0 1 0 6m7.5-2.5a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1zM10 16c.28 0 .5.22.5.5v1a.5.5 0 0 1-1 0v-1c0-.28.22-.5.5-.5m-6.5-5.5a.5.5 0 0 0 0-1H2.46a.5.5 0 0 0 0 1zm.65-6.35c.2-.2.5-.2.7 0l1 1a.5.5 0 1 1-.7.7l-1-1a.5.5 0 0 1 0-.7m.7 11.7a.5.5 0 0 1-.7-.7l1-1a.5.5 0 0 1 .7.7zm11-11.7a.5.5 0 0 0-.7 0l-1 1a.5.5 0 0 0 .7.7l1-1a.5.5 0 0 0 0-.7m-.7 11.7a.5.5 0 0 0 .7-.7l-1-1a.5.5 0 0 0-.7.7z"/></symbol>
+  <symbol id="i-desktop" viewBox="0 0 20 20"><path d="M4 2a2 2 0 0 0-2 2v9c0 1.1.9 2 2 2h3v2H5.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1H13v-2h3a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm8 13v2H8v-2zM3 4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 20 20"><path d="M10 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16m3.36 5.65a.5.5 0 0 0-.64-.06l-.07.06L9 11.3 7.35 9.65l-.07-.06a.5.5 0 0 0-.7.7l.07.07 2 2 .07.06c.17.11.4.11.56 0l.07-.06 4-4 .07-.08a.5.5 0 0 0-.06-.63"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 20 20"><path d="M7.37 3.56a3 3 0 0 1 5.26 0l5.5 10A3 3 0 0 1 15.5 18h-11a3 3 0 0 1-2.63-4.44zM10 12.75a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5m0-6.25a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 1 0V7a.5.5 0 0 0-.5-.5"/></symbol>
+  <symbol id="i-paste" viewBox="0 0 20 20"><path d="M4.5 4h1.59c.2.58.76 1 1.41 1h3c.65 0 1.2-.42 1.41-1h1.59c.28 0 .5.22.5.5v1a.5.5 0 0 0 1 0v-1c0-.83-.67-1.5-1.5-1.5h-1.59c-.2-.58-.76-1-1.41-1h-3c-.65 0-1.2.42-1.41 1H4.5C3.67 3 3 3.67 3 4.5v12c0 .83.67 1.5 1.5 1.5h3a.5.5 0 0 0 0-1h-3a.5.5 0 0 1-.5-.5v-12c0-.28.22-.5.5-.5m3 0a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0 1zm3 3C9.67 7 9 7.67 9 8.5v8c0 .83.67 1.5 1.5 1.5h5c.83 0 1.5-.67 1.5-1.5v-8c0-.83-.67-1.5-1.5-1.5z"/></symbol>
+  <symbol id="i-open" viewBox="0 0 20 20"><path d="M6 4a2 2 0 0 0-2 2v8c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2v-2.5a.5.5 0 0 1 1 0V14a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3h2.5a.5.5 0 0 1 0 1zm5-.5c0-.28.22-.5.5-.5h5c.28 0 .5.22.5.5v5a.5.5 0 0 1-1 0V4.7l-4.15 4.15a.5.5 0 0 1-.7-.7L15.29 4H11.5a.5.5 0 0 1-.5-.5"/></symbol>
+  <symbol id="i-color" viewBox="0 0 20 20"><path d="M10 2a8 8 0 0 1 3.39 15.25c-1.09.5-2.33.44-3.3-.06a2.9 2.9 0 0 1-1.64-2.73q.04-.68.14-1.24.1-.59.14-1.02.03-.44-.08-.73-.09-.3-.45-.57a1 1 0 0 0-.84-.24q-.43.09-1.02.39c-.73.36-1.77.94-2.97.33-1.1-.56-1.43-1.87-1.22-2.92A8 8 0 0 1 10 2m0 1a7 7 0 0 0-6.87 5.66c-.15.78.13 1.54.69 1.83.68.35 1.25.07 2.08-.34.38-.18.83-.4 1.31-.48.52-.07 1.06.03 1.59.43q.58.44.79 1.02c.14.38.16.77.14 1.14s-.1.75-.15 1.12q-.1.55-.13 1.12c-.03.8.42 1.44 1.1 1.8.7.36 1.62.42 2.41.04A7 7 0 0 0 10 3m2.5 10a1 1 0 1 1 0 2 1 1 0 0 1 0-2m2-2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2m0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2m-2-2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2m-3-.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></symbol>
+  <symbol id="i-rec" viewBox="0 0 20 20"><path d="M2 10a8 8 0 1 1 16 0 8 8 0 0 1-16 0m8 4.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 20 20"><path d="M10.84 3.13a.5.5 0 0 0-.68.74l6.17 5.63H2.5a.5.5 0 0 0 0 1h13.83l-6.17 5.63a.5.5 0 0 0 .68.74l6.91-6.32a.75.75 0 0 0 0-1.1z"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 20 20"><path d="M16.83 7.38q.62.63 1.14 1.37a.5.5 0 0 1-.83.57 8.61 8.61 0 0 0-14.2 0 .5.5 0 0 1-.82-.58 9.61 9.61 0 0 1 14.71-1.36M14.6 9.36q.71.72 1.19 1.65a.5.5 0 0 1-.89.46q-.4-.8-1.01-1.4a5.45 5.45 0 0 0-8.72 1.38.5.5 0 1 1-.89-.45q.45-.9 1.2-1.64a6.45 6.45 0 0 1 9.12 0m-1.71 2.5q.53.53.85 1.25a.5.5 0 0 1-.92.4 3.03 3.03 0 0 0-5.56-.01.5.5 0 1 1-.92-.4q.3-.72.84-1.25a4.03 4.03 0 0 1 5.7 0m-1.93 1.93a1.3 1.3 0 1 1-1.83 1.83 1.3 1.3 0 0 1 1.83-1.83"/></symbol>
+  <symbol id="i-battery" viewBox="0 0 20 20"><path d="M16 5a3 3 0 0 1 3 3 1 1 0 0 1 1 1v2a1 1 0 0 1-1 1 3 3 0 0 1-3 3H3a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3zM3 6a2 2 0 0 0-2 2v4c0 1.1.9 2 2 2h13a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2zm13 1a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/></symbol>
+</svg>
+
+<div class="menubar"><div class="inner">
+  <span class="sys">
+    <svg class="ic s"><use href="#i-wifi"/></svg>
+    <svg class="ic s"><use href="#i-battery"/></svg>
+  </span>
+  <span class="tray" title="PlainPaste"><svg class="ic s"><use href="#i-paste"/></svg></span>
+  <span class="clock">週五 14:30</span>
+</div></div>
+
+<div class="inner stage">
+
+  <!-- 狀態表 -->
+  <div class="col">
+    <div class="flyout">
+      <div class="head">
+        <div class="logo"><svg class="ic"><use href="#i-paste"/></svg></div>
+        <div class="title"><b>PlainPaste</b><span>純文字貼上</span></div>
+        <span class="pill">v0.0.1</span>
+      </div>
+
+      <div class="card">
+        <div class="row"><span class="tile"><svg class="ic"><use href="#i-keyboard"/></svg></span><div class="rl"><b>貼上快捷鍵</b></div></div>
+        <div class="body">
+          <div class="hk">
+            <button class="keys rec"><svg class="ic s rd"><use href="#i-rec"/></svg>請按下按鍵組合…</button>
+            <button class="btn"><svg class="ic s"><use href="#i-reset"/></svg>取消</button>
+          </div>
+          <p class="hint">按 Esc 取消；至少需包含一個修飾鍵（Ctrl / Alt / Shift / Win / Cmd）。</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <span class="tile"><svg class="ic"><use href="#i-wrap"/></svg></span>
+          <div class="rl"><b>保留換行</b></div>
+          <span class="swl">開</span>
+          <button class="sw" role="switch" aria-checked="true" aria-label="保留換行"></button>
+        </div>
+        <div class="body">
+          <div class="pv">
+            <div class="box"><small>複製的文字</small><span>一行<br>二行<br>三行</span></div>
+            <span class="ar"><svg class="ic s"><use href="#i-arrow"/></svg></span>
+            <div class="box"><small>貼上結果</small><span>一行<br>二行<br>三行</span></div>
+          </div>
+          <p class="hint">開啟時，換行原樣保留。</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <span class="tile"><svg class="ic"><use href="#i-undo"/></svg></span>
+          <div class="rl"><b>貼上後還原剪貼簿</b></div>
+          <span class="swl">開</span>
+          <button class="sw" role="switch" aria-checked="true" aria-label="貼上後還原剪貼簿"></button>
+        </div>
+        <p class="hint">貼上完成後放回原本的格式化內容</p>
+      </div>
+
+      <div class="card">
+        <div class="row"><span class="tile"><svg class="ic"><use href="#i-color"/></svg></span><div class="rl"><b>外觀主題</b></div></div>
+        <div class="seg" role="radiogroup" aria-label="外觀主題">
+          <button role="radio" aria-checked="false" data-v="system"><svg class="ic s"><use href="#i-desktop"/></svg>跟隨系統</button>
+          <button role="radio" aria-checked="false" data-v="light"><svg class="ic s"><use href="#i-sun"/></svg>淺色</button>
+          <button role="radio" aria-checked="false" data-v="dark"><svg class="ic s"><use href="#i-moon"/></svg>深色</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <span class="tile warn"><svg class="ic"><use href="#i-shield-err"/></svg></span>
+          <div class="rl"><b>輔助使用權限</b><span>需授權才能模擬貼上</span></div>
+          <span class="tag">僅 macOS 顯示</span>
+        </div>
+        <div class="row split">
+          <span class="badge no"><svg class="ic s"><use href="#i-warn"/></svg>未授權</span>
+          <button class="btn primary"><svg class="ic s"><use href="#i-open"/></svg>開啟系統設定</button>
+        </div>
+      </div>
+
+      <div class="foot"><button class="btn"><svg class="ic s"><use href="#i-power"/></svg>結束</button></div>
+    </div>
+    <span class="cap">狀態表：錄製中／未授權／換行開啟</span>
+  </div>
+
+  <!-- 互動版（錨定於系統匣圖示） -->
+  <div class="col">
+    <div class="flyout anchored">
+      <div class="head">
+        <div class="logo"><svg class="ic"><use href="#i-paste"/></svg></div>
+        <div class="title"><b>PlainPaste</b><span>純文字貼上</span></div>
+        <span class="pill">v0.0.1</span>
+      </div>
+
+      <div class="card">
+        <div class="row"><span class="tile"><svg class="ic"><use href="#i-keyboard"/></svg></span><div class="rl"><b>貼上快捷鍵</b></div></div>
+        <div class="body">
+          <div class="hk">
+            <button class="keys" id="keys" aria-label="快捷鍵錄製"><span id="keysIn" style="display:contents"></span></button>
+            <button class="btn" id="reset"><svg class="ic s"><use href="#i-reset"/></svg>重設</button>
+          </div>
+          <p class="hint" id="hkHint">點擊後按下新的組合鍵。macOS 顯示為 Cmd+Shift+V。</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <span class="tile"><svg class="ic"><use href="#i-wrap"/></svg></span>
+          <div class="rl"><b>保留換行</b></div>
+          <span class="swl" id="swl">關</span>
+          <button class="sw" id="sw" role="switch" aria-checked="false" aria-label="保留換行"></button>
+        </div>
+        <div class="body">
+          <div class="pv">
+            <div class="box"><small>複製的文字</small><span>一行<br>二行<br>三行</span></div>
+            <span class="ar"><svg class="ic s"><use href="#i-arrow"/></svg></span>
+            <div class="box"><small>貼上結果</small><span id="pvOut">一行<i class="sp"></i>二行<i class="sp"></i>三行</span></div>
+          </div>
+          <p class="hint" id="swHint">關閉時，換行會以空白取代。</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <span class="tile"><svg class="ic"><use href="#i-undo"/></svg></span>
+          <div class="rl"><b>貼上後還原剪貼簿</b></div>
+          <span class="swl" id="rsl">開</span>
+          <button class="sw" id="rs" role="switch" aria-checked="true" aria-label="貼上後還原剪貼簿"></button>
+        </div>
+        <p class="hint">貼上完成後放回原本的格式化內容</p>
+      </div>
+
+      <div class="card">
+        <div class="row"><span class="tile"><svg class="ic"><use href="#i-color"/></svg></span><div class="rl"><b>外觀主題</b></div></div>
+        <div class="seg" role="radiogroup" aria-label="外觀主題">
+          <button role="radio" aria-checked="false" data-v="system"><svg class="ic s"><use href="#i-desktop"/></svg>跟隨系統</button>
+          <button role="radio" aria-checked="false" data-v="light"><svg class="ic s"><use href="#i-sun"/></svg>淺色</button>
+          <button role="radio" aria-checked="false" data-v="dark"><svg class="ic s"><use href="#i-moon"/></svg>深色</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <span class="tile ok"><svg class="ic"><use href="#i-shield-ok"/></svg></span>
+          <div class="rl"><b>輔助使用權限</b><span>可模擬貼上動作</span></div>
+          <span class="tag">僅 macOS 顯示</span>
+        </div>
+        <div class="row split">
+          <span class="badge ok"><svg class="ic s"><use href="#i-check"/></svg>已授權</span>
+          <button class="btn"><svg class="ic s"><use href="#i-open"/></svg>開啟系統設定</button>
+        </div>
+      </div>
+
+      <div class="foot"><button class="btn"><svg class="ic s"><use href="#i-power"/></svg>結束</button></div>
+    </div>
+    <span class="cap">互動版：可點擊錄製／開關／切換主題</span>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const root=document.documentElement;
+const THEMES=['system','light','dark'];
+
+/* theme: data-theme on <html>; initial value from #hash, default light */
+function setTheme(v){
+  root.setAttribute('data-theme',v);
+  document.querySelectorAll('.seg button').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.v===v)));
+}
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>setTheme(b.dataset.v)));
+const h=location.hash.slice(1);
+setTheme(THEMES.includes(h)?h:'light');
+
+/* keep line breaks switch */
+const SP='<i class="sp"></i>';
+$('sw').onclick=()=>{
+  const on=$('sw').getAttribute('aria-checked')!=='true';
+  $('sw').setAttribute('aria-checked',on);
+  $('swl').textContent=on?'開':'關';
+  $('pvOut').innerHTML=on?'一行<br>二行<br>三行':'一行'+SP+'二行'+SP+'三行';
+  $('swHint').textContent=on?'開啟時，換行原樣保留。':'關閉時，換行會以空白取代。';
+};
+
+/* restore clipboard switch */
+$('rs').onclick=()=>{
+  const on=$('rs').getAttribute('aria-checked')!=='true';
+  $('rs').setAttribute('aria-checked',on);
+  $('rsl').textContent=on?'開':'關';
+};
+
+/* hotkey recorder */
+const keycaps=ks=>ks.map(k=>'<kbd>'+k+'</kbd>').join('<span class="plus">+</span>');
+const DEFAULT=['Ctrl','Shift','V'];
+let combo=DEFAULT;
+function show(){ $('keys').classList.remove('rec'); $('keysIn').innerHTML=keycaps(combo); }
+$('keys').onclick=()=>{
+  $('keys').classList.add('rec');
+  $('keysIn').innerHTML='<svg class="ic s rd"><use href="#i-rec"/></svg>請按下按鍵組合…';
+  $('keys').focus();
+};
+$('keys').addEventListener('keydown',e=>{
+  if(!$('keys').classList.contains('rec'))return;
+  e.preventDefault();
+  if(['Control','Shift','Alt','Meta'].includes(e.key))return;
+  const m=[];if(e.ctrlKey)m.push('Ctrl');if(e.altKey)m.push('Alt');if(e.shiftKey)m.push('Shift');if(e.metaKey)m.push('Win');
+  if(e.key==='Escape'||!m.length){show();return;}
+  m.push(e.key.length===1?e.key.toUpperCase():e.key);
+  combo=m;show();
+});
+$('reset').onclick=()=>{combo=DEFAULT;show();};
+show();
+</script>
+</body>
+</html>

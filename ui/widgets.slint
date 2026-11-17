@@ -1,0 +1,156 @@
+import { Tokens } from "tokens.slint";
+
+export component Icon inherits Path {
+    in property <string> path;
+    in property <length> size: Tokens.icon;
+    width: size;
+    height: size;
+    in property <float> viewbox: 20;
+    viewbox-width: viewbox;
+    viewbox-height: viewbox;
+    commands: path;
+}
+
+export component Tile inherits Rectangle {
+    in property <string> icon;
+    in property <color> tint: Tokens.brand-tint;
+    in property <color> ink: Tokens.brand;
+    width: Tokens.tile;
+    height: Tokens.tile;
+    border-radius: Tokens.r-tile;
+    background: tint;
+    Icon { path: icon; fill: ink; x: (parent.width - self.width) / 2; y: (parent.height - self.height) / 2; }
+}
+
+export component Card inherits Rectangle {
+    background: Tokens.card;
+    border-color: Tokens.card-stroke;
+    border-width: 1px;
+    border-radius: Tokens.r-card;
+    VerticalLayout {
+        padding: Tokens.pad-card;
+        spacing: Tokens.gap-stack;
+        @children
+    }
+}
+
+export component RowLabel inherits VerticalLayout {
+    in property <string> title;
+    in property <string> subtitle;
+    horizontal-stretch: 1;
+    spacing: Tokens.gap-title;
+    alignment: center;
+    Text { text: title; font-size: Tokens.text-body; font-weight: 600; color: Tokens.fg; }
+    if subtitle != "": Text { text: subtitle; font-size: Tokens.text-small; color: Tokens.fg; }
+}
+
+// Card help text, left-aligned from the center of the card header tile.
+export component Hint inherits HorizontalLayout {
+    in property <string> text;
+    in property <color> color: Tokens.fg;
+    padding-left: Tokens.indent-tile-center;
+    Text { text: root.text; color: root.color; font-size: Tokens.text-small; wrap: word-wrap; horizontal-alignment: left; horizontal-stretch: 1; }
+}
+
+// Empty `label` = icon-only square button (width = h); `tooltip` then names it for hover and screen readers.
+export component ActionButton inherits Rectangle {
+    in property <string> label;
+    in property <string> tooltip;
+    in property <string> icon;
+    in property <bool> primary;
+    in property <float> icon-viewbox: 16;
+    in property <length> h: Tokens.control-h;
+    callback clicked();
+    height: h;
+    horizontal-stretch: 0;
+    accessible-role: button;
+    accessible-label: label != "" ? label : tooltip;
+    accessible-action-default => { root.clicked(); }
+    border-radius: Tokens.radius-control;
+    border-width: 1px;
+    background: primary
+        ? (touch.pressed ? Tokens.brand-press : touch.has-hover ? Tokens.brand-hover : Tokens.brand)
+        : (touch.pressed ? Tokens.btn-press : touch.has-hover ? Tokens.btn-hover : Tokens.btn);
+    border-color: primary ? self.background : Tokens.btn-stroke;
+    HorizontalLayout {
+        // Icon-only: the side padding centers the icon in an h x h square.
+        padding-left: label != "" ? Tokens.pad-ctl : (h - Tokens.icon-s) / 2;
+        padding-right: self.padding-left;
+        spacing: Tokens.gap-icon;
+        alignment: center;
+        if icon != "": Icon { path: icon; viewbox: icon-viewbox; size: Tokens.icon-s; fill: primary ? Tokens.on-brand : Tokens.fg; y: (parent.height - self.height) / 2; }
+        if label != "": Text {
+            text: label;
+            font-size: Tokens.text-btn;
+            font-weight: primary ? 600 : 400;
+            color: primary ? Tokens.on-brand : Tokens.fg;
+            vertical-alignment: center;
+            horizontal-alignment: center;
+        }
+    }
+    touch := TouchArea { clicked => { root.clicked(); } }
+    if tooltip != "": Tooltip { text: @markdown("\{root.tooltip}"); }
+}
+
+export component Switch inherits Rectangle {
+    in property <bool> checked;
+    callback toggled();
+    width: Tokens.switch-width;
+    height: Tokens.switch-height;
+    border-radius: self.height / 2;
+    border-width: 1px;
+    border-color: checked ? Tokens.brand : Tokens.switch-off;
+    background: checked ? Tokens.brand : transparent;
+    Rectangle {
+        width: checked ? Tokens.thumb-on : Tokens.thumb-off;
+        height: self.width;
+        border-radius: self.width / 2;
+        background: checked ? Tokens.on-brand : Tokens.gray-text;
+        x: checked ? parent.width - self.width - (parent.height - self.width) / 2 : (parent.height - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+    }
+    TouchArea { clicked => { root.toggled(); } }
+}
+
+export component Keycap inherits Rectangle {
+    in property <string> label;
+    height: Tokens.keycap-h;
+    min-width: max(Tokens.keycap-h, label-text.preferred-width + 2 * Tokens.padding-control-small);
+    border-radius: Tokens.r-thumb;
+    border-width: 1px;
+    border-color: Tokens.keycap-stroke;
+    background: Tokens.keycap;
+    HorizontalLayout {
+        padding-left: Tokens.padding-control-small;
+        padding-right: Tokens.padding-control-small;
+        label-text := Text { text: label; font-size: Tokens.text-small; font-weight: 600; color: Tokens.fg; vertical-alignment: center; horizontal-alignment: center; }
+    }
+}
+
+export component SegmentButton inherits Rectangle {
+    in property <string> label;
+    in property <string> icon;
+    in property <bool> selected;
+    callback clicked();
+    min-width: 0px;
+    preferred-width: 0px;
+    horizontal-stretch: 1;
+    border-radius: Tokens.r-thumb;
+    border-width: 1px;
+    border-color: selected ? Tokens.card-stroke : transparent;
+    background: selected ? Tokens.seg-on : transparent;
+    HorizontalLayout {
+        alignment: center;
+        spacing: Tokens.gap-icon;
+        Icon { path: icon; viewbox: 16; size: Tokens.icon-s; fill: selected ? Tokens.brand : Tokens.fg; y: (parent.height - self.height) / 2; }
+        Text {
+            text: label;
+            font-size: Tokens.text-small;
+            font-weight: selected ? 600 : 400;
+            color: Tokens.fg;
+            vertical-alignment: center;
+            horizontal-alignment: center;
+        }
+    }
+    touch := TouchArea { clicked => { root.clicked(); } }
+}

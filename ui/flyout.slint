@@ -1,0 +1,339 @@
+// Settings flyout. Layout, copy and colors follow design/mockups/variant-b.html.
+import { Palette } from "std-widgets.slint";
+import { Icons } from "icons.slint";
+import { AppIcon } from "app-icon.slint";
+import { Tokens } from "tokens.slint";
+import { ActionButton, Card, Hint, Icon, Keycap, RowLabel, SegmentButton, Switch, Tile } from "widgets.slint";
+export { Palette, Tokens }
+
+export enum ThemeChoice { system, light, dark }
+
+export component Flyout inherits Window {
+    // Rust -> UI state.
+    in property <string> version;
+    in property <[string]> hotkey-caps;
+    in property <bool> recording;
+    in property <string> hotkey-error;
+    in property <bool> keep-line-breaks;
+    in property <[string]> preview-in;
+    in property <[string]> preview-out;
+    in property <bool> restore-clipboard;
+    in property <ThemeChoice> theme;
+    in property <bool> show-accessibility;
+    in property <bool> accessibility-granted;
+    in property <bool> caret-visible;
+
+    // UI -> Rust intents.
+    callback start-recording();
+    callback cancel-recording();
+    callback record-key(string, bool, bool, bool, bool);
+    callback reset-hotkey();
+    callback toggle-keep-line-breaks();
+    callback toggle-restore-clipboard();
+    callback choose-theme(ThemeChoice);
+    callback open-accessibility-settings();
+    callback quit();
+
+    title: "PlainPaste";
+    no-frame: true;
+    always-on-top: true;
+    background: transparent;
+    width: Tokens.flyout-w;
+
+    if caret-visible: Rectangle {
+        x: parent.width - Tokens.caret-right - Tokens.caret;
+        y: 0;
+        width: Tokens.caret;
+        height: Tokens.caret / 2;
+        Path {
+            width: 100%;
+            height: 100%;
+            viewbox-width: 2;
+            viewbox-height: 1;
+            commands: "M0 1 L1 0 L2 1 Z";
+            fill: Tokens.flyout;
+            stroke: Tokens.flyout-stroke;
+            stroke-width: 1px;
+        }
+    }
+
+    VerticalLayout {
+        padding-top: caret-visible ? Tokens.caret / 2 - 1px : 0;
+        Rectangle {
+            background: Tokens.flyout;
+            border-color: Tokens.flyout-stroke;
+            border-width: 1px;
+            border-radius: Tokens.r-panel;
+            VerticalLayout {
+                padding: Tokens.pad-panel;
+                spacing: Tokens.gap-stack;
+
+                // Header.
+                HorizontalLayout {
+                    spacing: Tokens.gap-row;
+                    cross-axis-alignment: center;
+                    Rectangle {
+                        width: Tokens.tile;
+                        height: Tokens.tile;
+                        // The icon's plate is 824/1024 of its canvas: 40px canvas = 32px plate.
+                        AppIcon {
+                            width: 40px;
+                            height: 40px;
+                            x: (parent.width - self.width) / 2;
+                            y: (parent.height - self.height) / 2;
+                        }
+                    }
+                    RowLabel { title: "PlainPaste"; subtitle: "純文字貼上"; }
+                    Rectangle {
+                        height: Tokens.chip-h;
+                        border-radius: self.height / 2;
+                        background: Tokens.brand-tint;
+                        width: version-label.preferred-width + 2 * Tokens.pad-ctl;
+                        // Optical correction: the text box is centered, but the glyph ink (no
+                        // descenders, wide right bearing of "1") sits about 1px up and left of it.
+                        version-label := Text {
+                            x: 1px;
+                            y: 1px;
+                            width: parent.width;
+                            height: parent.height;
+                            text: "v" + version;
+                            font-size: Tokens.text-small;
+                            font-weight: 600;
+                            color: Tokens.brand;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+
+                // Hotkey recorder.
+                Card {
+                    HorizontalLayout {
+                        spacing: Tokens.gap-row;
+                        Tile { icon: Icons.keyboard; }
+                        RowLabel { title: "貼上快捷鍵"; }
+                    }
+                    HorizontalLayout {
+                        spacing: Tokens.gap-body;
+                        keys := Rectangle {
+                            // An over-long combo overflows inside the field instead of pushing the button out of the card.
+                            min-width: 0px;
+                            horizontal-stretch: 1;
+                            height: Tokens.control-h-lg;
+                            border-radius: Tokens.radius-control;
+                            border-width: 1px;
+                            border-color: recording ? Tokens.brand : Tokens.input-stroke;
+                            background: recording ? Tokens.brand-tint : Tokens.input;
+                            Rectangle {
+                                x: Tokens.radius-control;
+                                width: parent.width - 2 * Tokens.radius-control;
+                                y: parent.height - 2px;
+                                height: 2px;
+                                background: recording || keys-touch.has-hover ? Tokens.brand : Tokens.input-bottom;
+                            }
+                            HorizontalLayout {
+                                alignment: center;
+                                cross-axis-alignment: center;
+                                spacing: recording ? Tokens.gap-icon : Tokens.gap-tight;
+                                padding-left: Tokens.padding-control-small;
+                                padding-right: Tokens.padding-control-small;
+                                if recording: Icon { path: Icons.record; viewbox: 16; size: Tokens.icon-s; fill: Tokens.danger; }
+                                if recording: Text { text: "請按下按鍵組合…"; font-size: Tokens.text-btn; font-weight: 600; color: Tokens.brand; }
+                                for cap[index] in (recording ? [] : hotkey-caps): HorizontalLayout {
+                                    horizontal-stretch: 0;
+                                    cross-axis-alignment: center;
+                                    spacing: Tokens.gap-tight;
+                                    if index > 0: Text { text: "+"; font-size: Tokens.text-small; color: Tokens.fg; }
+                                    Keycap { label: cap; }
+                                }
+                            }
+                            keys-touch := TouchArea {
+                                clicked => {
+                                    if (!recording) {
+                                        root.start-recording();
+                                        key-input.focus();
+                                    }
+                                }
+                            }
+                            key-input := FocusScope {
+                                key-pressed(event) => {
+                                    if (!recording) { return reject; }
+                                    if (event.text == Key.Escape) {
+                                        root.cancel-recording();
+                                        return accept;
+                                    }
+                                    if (event.text == Key.Shift || event.text == Key.Control || event.text == Key.Alt || event.text == Key.Meta) {
+                                        return accept;
+                                    }
+                                    root.record-key(event.text, event.modifiers.control, event.modifiers.alt, event.modifiers.shift, event.modifiers.meta);
+                                    accept
+                                }
+                            }
+                        }
+                        if recording: ActionButton { tooltip: "取消"; icon: Icons.dismiss; icon-viewbox: 20; h: Tokens.control-h-lg; clicked => { root.cancel-recording(); } }
+                        if !recording: ActionButton { tooltip: "重設"; icon: Icons.reset; icon-viewbox: 20; h: Tokens.control-h-lg; clicked => { root.reset-hotkey(); } }
+                    }
+                    VerticalLayout {
+                        spacing: Tokens.gap-tight;
+                        if hotkey-error != "": Hint { text: hotkey-error; color: Tokens.danger; }
+                        Hint {
+                            text: recording
+                                ? "按 Esc 取消；至少需包含一個修飾鍵（Ctrl / Alt / Shift / Win / Cmd）。"
+                                : "點擊後按下新的組合鍵。";
+                        }
+                    }
+                }
+
+                // Keep line breaks.
+                Card {
+                    HorizontalLayout {
+                        spacing: Tokens.gap-row;
+                        Tile { icon: Icons.wrap; }
+                        RowLabel { title: "保留換行"; }
+                        Text { text: keep-line-breaks ? "開" : "關"; font-size: Tokens.text-small; color: Tokens.fg; vertical-alignment: center; }
+                        Switch { checked: keep-line-breaks; y: (parent.height - self.height) / 2; toggled => { root.toggle-keep-line-breaks(); } }
+                    }
+                    HorizontalLayout {
+                        spacing: Tokens.gap-tight;
+                        Rectangle {
+                            horizontal-stretch: 1;
+                            min-height: Tokens.preview-min;
+                            border-radius: Tokens.r-inner;
+                            border-width: 1px;
+                            border-color: Tokens.sub-stroke;
+                            background: Tokens.sub;
+                            VerticalLayout {
+                                padding: Tokens.pad-ctl;
+                                spacing: Tokens.gap-tight;
+                                alignment: start;
+                                Text { text: "複製的文字"; font-size: Tokens.text-caption; font-weight: 600; color: Tokens.fg; }
+                                for line in preview-in: Text { text: line; font-size: Tokens.text-small; color: Tokens.fg; }
+                            }
+                        }
+                        Rectangle {
+                            width: Tokens.arrow-w;
+                            Icon { path: Icons.arrow; viewbox: 16; size: Tokens.icon-s; fill: Tokens.fg; x: (parent.width - self.width) / 2; y: (parent.height - self.height) / 2; }
+                        }
+                        Rectangle {
+                            horizontal-stretch: 1;
+                            min-height: Tokens.preview-min;
+                            border-radius: Tokens.r-inner;
+                            border-width: 1px;
+                            border-color: Tokens.sub-stroke;
+                            background: Tokens.sub;
+                            VerticalLayout {
+                                padding: Tokens.pad-ctl;
+                                spacing: Tokens.gap-tight;
+                                alignment: start;
+                                Text { text: "貼上結果"; font-size: Tokens.text-caption; font-weight: 600; color: Tokens.fg; }
+                                if keep-line-breaks: VerticalLayout {
+                                    spacing: Tokens.gap-tight;
+                                    for line in preview-out: Text { text: line; font-size: Tokens.text-small; color: Tokens.fg; }
+                                }
+                                if !keep-line-breaks: HorizontalLayout {
+                                    alignment: start;
+                                    for word[index] in preview-out: HorizontalLayout {
+                                        if index > 0: Rectangle {
+                                            width: 0.5 * Tokens.text-small;
+                                            height: 0.75 * Tokens.text-small;
+                                            y: (parent.height - self.height) / 2;
+                                            border-radius: Tokens.r-thumb;
+                                            background: Tokens.brand.transparentize(65%);
+                                        }
+                                        Text { text: word; font-size: Tokens.text-small; color: Tokens.fg; }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Hint { text: keep-line-breaks ? "開啟時，換行原樣保留。" : "關閉時，換行會以空白取代。"; }
+                }
+
+                // Restore clipboard.
+                Card {
+                    HorizontalLayout {
+                        spacing: Tokens.gap-row;
+                        Tile { icon: Icons.restore; }
+                        RowLabel { title: "貼上後還原剪貼簿"; }
+                        Text { text: restore-clipboard ? "開" : "關"; font-size: Tokens.text-small; color: Tokens.fg; vertical-alignment: center; }
+                        Switch { checked: restore-clipboard; y: (parent.height - self.height) / 2; toggled => { root.toggle-restore-clipboard(); } }
+                    }
+                    Hint { text: "貼上完成後放回原本的格式化內容"; }
+                }
+
+                // Tokens.
+                Card {
+                    HorizontalLayout {
+                        spacing: Tokens.gap-row;
+                        Tile { icon: Icons.palette; }
+                        RowLabel { title: "外觀主題"; }
+                    }
+                    Rectangle {
+                        height: Tokens.control-h;
+                        border-radius: Tokens.radius-control;
+                        background: Tokens.seg;
+                        HorizontalLayout {
+                            padding: Tokens.segment-padding;
+                            spacing: Tokens.segment-padding;
+                            SegmentButton { label: "跟隨系統"; icon: Icons.desktop; selected: theme == ThemeChoice.system; clicked => { root.choose-theme(ThemeChoice.system); } }
+                            SegmentButton { label: "淺色"; icon: Icons.sun; selected: theme == ThemeChoice.light; clicked => { root.choose-theme(ThemeChoice.light); } }
+                            SegmentButton { label: "深色"; icon: Icons.moon; selected: theme == ThemeChoice.dark; clicked => { root.choose-theme(ThemeChoice.dark); } }
+                        }
+                    }
+                }
+
+                // macOS Accessibility permission.
+                if show-accessibility: Card {
+                    HorizontalLayout {
+                        spacing: Tokens.gap-row;
+                        cross-axis-alignment: center;
+                        Tile {
+                            icon: accessibility-granted ? Icons.shield-ok : Icons.shield-err;
+                            tint: accessibility-granted ? Tokens.ok-bg : Tokens.warn-bg;
+                            ink: accessibility-granted ? Tokens.ok : Tokens.warn;
+                        }
+                        RowLabel { title: "輔助使用權限"; subtitle: accessibility-granted ? "可模擬貼上動作" : "需授權才能模擬貼上"; }
+                    }
+                    // Status badge left, button right: same height, radius and border as ActionButton.
+                    HorizontalLayout {
+                        alignment: space-between;
+                        cross-axis-alignment: center;
+                        Rectangle {
+                            height: Tokens.control-h;
+                            horizontal-stretch: 0;
+                            border-radius: Tokens.radius-control;
+                            border-width: 1px;
+                            border-color: accessibility-granted ? Tokens.ok-bg : Tokens.warn-stroke;
+                            background: accessibility-granted ? Tokens.ok-bg : Tokens.warn-bg;
+                            HorizontalLayout {
+                                padding-left: Tokens.pad-ctl;
+                                padding-right: Tokens.pad-ctl;
+                                spacing: Tokens.gap-icon;
+                                cross-axis-alignment: center;
+                                Icon {
+                                    path: accessibility-granted ? Icons.check : Icons.warn;
+                                    viewbox: 16;
+                                    size: Tokens.icon-s;
+                                    fill: accessibility-granted ? Tokens.ok : Tokens.warn;
+                                }
+                                Text {
+                                    text: accessibility-granted ? "已授權" : "未授權";
+                                    font-size: Tokens.text-btn;
+                                    font-weight: 600;
+                                    color: accessibility-granted ? Tokens.ok : Tokens.warn;
+                                }
+                            }
+                        }
+                        ActionButton { label: "開啟系統設定"; icon: Icons.open; primary: !accessibility-granted; clicked => { root.open-accessibility-settings(); } }
+                    }
+                }
+
+                // Footer.
+                HorizontalLayout {
+                    alignment: end;
+                    ActionButton { label: "結束"; icon: Icons.power; icon-viewbox: 20; clicked => { root.quit(); } }
+                }
+            }
+        }
+    }
+}
