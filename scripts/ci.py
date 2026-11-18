@@ -68,7 +68,7 @@ def _literal_args(call: ast.Call) -> list[str]:
 
 
 def _hits(path: Path) -> list[tuple[int, str]]:
-    tree = ast.parse(path.read_text(), filename=str(path))
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     skipped = _skipped_lines(tree)
     hits = []
     for node in ast.walk(tree):
@@ -100,9 +100,9 @@ def scan_sources() -> list[str]:
         if path in seen:
             continue
         seen.add(path)
-        lines = path.read_text().splitlines()
+        lines = path.read_text(encoding="utf-8").splitlines()
         problems += [f"{path.relative_to(ROOT)}:{n}: {why}: {lines[n - 1].strip()}" for n, why in _hits(path)]
-        pending += _imported_scripts(ast.parse(path.read_text()))
+        pending += _imported_scripts(ast.parse(path.read_text(encoding="utf-8")))
     return problems
 
 
@@ -185,7 +185,7 @@ def sh_expect_line(argv: list[str], what: str, sentinel: str) -> None:
     command that silently did nothing must not count as success)."""
     print("+", " ".join(argv), flush=True)
     seen = False
-    with subprocess.Popen(argv, cwd=ROOT, stdout=subprocess.PIPE, text=True, errors="replace") as proc:
+    with subprocess.Popen(argv, cwd=ROOT, stdout=subprocess.PIPE, text=True, encoding="utf-8", errors="replace") as proc:
         for line in proc.stdout:
             print(line, end="", flush=True)
             seen = seen or sentinel in line
@@ -204,7 +204,7 @@ def check_clean_tree() -> None:
     if not (ROOT / ".git").exists():
         return  # the remote Windows dir is a `git archive HEAD` extract, HEAD is already guaranteed
     out = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"],
-                         cwd=ROOT, check=True, capture_output=True, text=True).stdout
+                         cwd=ROOT, check=True, capture_output=True, text=True, encoding="utf-8").stdout
     if out.strip():
         sys.exit(f"build needs a clean tree: expected no tracked changes, actual:\n{out}")
 
@@ -261,7 +261,7 @@ def powershell_script(statements: list[str]) -> str:
 def build_windows_remote(tag: str | None) -> None:
     win_host = require_env(WIN_HOST_ENV, "ssh target, e.g. user@host")
     ssh_opts = ["-i", require_env(WIN_KEY_ENV, "ssh private key path"), "-o", "BatchMode=yes"]
-    toolchain = re.search(r'channel\s*=\s*"([^"]+)"', (ROOT / "rust-toolchain.toml").read_text())
+    toolchain = re.search(r'channel\s*=\s*"([^"]+)"', (ROOT / "rust-toolchain.toml").read_text(encoding="utf-8"))
     if toolchain is None:
         sys.exit("rust-toolchain.toml: expected a channel = \"...\" line, actual none")
     channel = toolchain.group(1)

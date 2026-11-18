@@ -68,7 +68,7 @@ _ran: set[tuple[str, ...]] = set()
 @functools.cache
 def _metadata() -> dict:
     out = subprocess.run(["cargo", "metadata", "--format-version", "1", "--no-deps"],
-                         cwd=ROOT, check=True, capture_output=True, text=True).stdout
+                         cwd=ROOT, check=True, capture_output=True, text=True, encoding="utf-8").stdout
     return json.loads(out)
 
 
@@ -148,7 +148,7 @@ def cargo(*args: str) -> list[dict]:
     sep = args.index("--") if "--" in args else len(args)
     cmd = ["cargo", *args[:sep], MESSAGE_FORMAT, *args[sep:]]
     print("+", " ".join(cmd), flush=True)
-    proc = subprocess.run(cmd, cwd=ROOT, stdout=subprocess.PIPE, text=True)
+    proc = subprocess.run(cmd, cwd=ROOT, stdout=subprocess.PIPE, text=True, encoding="utf-8")
     if proc.returncode != 0:
         sys.exit(f"{' '.join(cmd)}: expected RC=0, actual RC={proc.returncode}")
     lines = proc.stdout.splitlines()
@@ -175,8 +175,8 @@ def _worktree_units(tree: Path) -> set[Path]:
             links[unit] = set()
             for spec in (unit / "fingerprint").glob("*.json"):
                 if spec.with_suffix("").is_file():
-                    by_fingerprint[spec.with_suffix("").read_text().strip()] = unit
-                links[unit] |= {struct.pack("<Q", dep[-1]).hex() for dep in json.loads(spec.read_text())["deps"]}
+                    by_fingerprint[spec.with_suffix("").read_text(encoding="utf-8").strip()] = unit
+                links[unit] |= {struct.pack("<Q", dep[-1]).hex() for dep in json.loads(spec.read_text(encoding="utf-8"))["deps"]}
     edges = {u: set() for u in links}
     for unit, fingerprints in links.items():
         for other in filter(None, map(by_fingerprint.get, fingerprints)):

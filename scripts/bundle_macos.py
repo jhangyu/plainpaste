@@ -30,7 +30,7 @@ MINOS_PATTERN = re.compile(r"^\s*minos\s+(\S+)$", re.MULTILINE)
 
 def run(*args: str) -> str:
     print("+", " ".join(args), flush=True)
-    return subprocess.run(args, cwd=ROOT, check=True, capture_output=True, text=True).stdout
+    return subprocess.run(args, cwd=ROOT, check=True, capture_output=True, text=True, encoding="utf-8").stdout
 
 
 def package_version() -> str:

@@ -28,7 +28,7 @@ def check_preconditions() -> list[str]:
     problems = []
     targets = subprocess.run(
         ["rustup", "target", "list", "--installed"],
-        capture_output=True, text=True,
+        capture_output=True, text=True, encoding="utf-8",
     )
     if targets.returncode != 0:
         problems.append(
@@ -39,7 +39,7 @@ def check_preconditions() -> list[str]:
             f"expected rustup target {WINDOWS_TARGET} installed, actual: {targets.stdout.split()}"
             f" (run: rustup target add {WINDOWS_TARGET})"
         )
-    docker = subprocess.run(["docker", "info"], capture_output=True, text=True)
+    docker = subprocess.run(["docker", "info"], capture_output=True, text=True, encoding="utf-8")
     if docker.returncode != 0:
         problems.append(
             f"docker info: expected RC=0 (daemon running), actual RC={docker.returncode}: {docker.stderr.strip()}"
@@ -62,7 +62,7 @@ def run_linux_container(script: str, docker_platform: str | None) -> int:
         LINUX_IMAGE, "sh", "-c", script,
     ]
     print("+", " ".join(cmd), flush=True)
-    proc = subprocess.run(cmd, cwd=ROOT, stdout=subprocess.PIPE, text=True)
+    proc = subprocess.run(cmd, cwd=ROOT, stdout=subprocess.PIPE, text=True, encoding="utf-8")
     cargo_trees.record(proc.stdout.splitlines(), (f"{CONTAINER_SRC_DIR}/", f"{ROOT}/"))
     if proc.returncode != 0:
         print(f"linux container in {LINUX_IMAGE}: expected RC=0, actual RC={proc.returncode}", file=sys.stderr)
