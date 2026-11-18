@@ -22,6 +22,9 @@ Assets: `plainpaste-<ver>-macos-arm64.zip`, `plainpaste-<ver>-windows-x86_64.exe
 
 ## Local three-platform run (from the Mac)
 
+Releases are built and published only by GitHub Actions. A local `build` is verification only: it
+checks the CI flow and its output is never uploaded. `ci.py publish` exits 1 unless `GITHUB_ACTIONS=true`.
+
 Run each leg as its own foreground command:
 
 ```

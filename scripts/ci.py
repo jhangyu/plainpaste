@@ -3,7 +3,9 @@
 `publish --tag [--from DIR]`. Builds release assets into dist/<platform>/ and publishes them
 as a GitHub Release. It refuses to run tests: before anything else it scans its own source
 and every scripts/ module it imports for test invocations, and at runtime it refuses to
-spawn any child process that looks like one. Used locally from the Mac and by GitHub Actions.
+spawn any child process that looks like one. Releases are built and published only by GitHub
+Actions: `publish` refuses to run unless GITHUB_ACTIONS=true, and a local `build` only verifies
+the CI flow (its output is never released).
 
 Route = (platform, host), no mode flag:
   macos   darwin only (native build + ditto zip)
@@ -327,6 +329,9 @@ def render_notes(tag: str) -> str:
 
 
 def cmd_publish(tag: str, source: Path) -> None:
+    actions = os.environ.get("GITHUB_ACTIONS")
+    if actions != "true":
+        sys.exit(f"publish runs only on GitHub Actions: expected GITHUB_ACTIONS=true, actual {actions or 'unset'}")
     check_tag(tag)
     notes = render_notes(tag)
     files = []
