@@ -10,7 +10,7 @@ Assets: `plainpaste-<ver>-macos-arm64.zip`, `plainpaste-<ver>-windows-x86_64.exe
 
 ## Cut a release
 
-1. Set the version in `Cargo.toml`, commit on `main`.
+1. Set the version in `Cargo.toml`. Write `release-notes/v<ver>.md` in the halcyon format (English block, `---`, zh-TW block; sections Highlights, Added, Fixed & Improved, Internal / Build). `ci.py publish` passes it as the release body and fails if it is missing or off-format. Commit on `main`.
 2. Run the three local legs below. All must exit 0.
 3. Push `main`, then tag and push the tag:
    ```

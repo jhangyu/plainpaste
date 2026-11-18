@@ -306,8 +306,29 @@ def cmd_build(plat: str, tag: str | None) -> None:
         {"macos": build_macos, "linux": build_linux, "windows": lambda: build_windows(tag)}[p]()
 
 
+NOTES_DIR = ROOT / "release-notes"
+# Halcyon release format: English block, `---`, then the zh-TW block, each with the same three sections.
+NOTES_HEADINGS = [
+    "## Highlights", "### ✨ Added", "### 🛠 Fixed & Improved", "### ⚙️ Internal / Build", "---",
+    "## 版本重點", "### ✨ 新增", "### 🛠 修正與改善", "### ⚙️ 內部/建置",
+]
+
+
+def render_notes(tag: str) -> str:
+    """Release body for `tag` from release-notes/<tag>.md. Fails loudly if missing or off-format."""
+    path = NOTES_DIR / f"{tag}.md"
+    if not path.is_file():
+        sys.exit(f"publish: expected release notes at {path}, actual missing")
+    body = path.read_text(encoding="utf-8")
+    lines = [ln for ln in body.splitlines() if ln.startswith("#") or ln == "---"]
+    if lines != NOTES_HEADINGS:
+        sys.exit(f"publish: {path} headings differ from the halcyon format, expected {NOTES_HEADINGS}, actual {lines}")
+    return body
+
+
 def cmd_publish(tag: str, source: Path) -> None:
     check_tag(tag)
+    notes = render_notes(tag)
     files = []
     for plat in PLATFORMS:
         name = asset_name(plat)
@@ -315,7 +336,10 @@ def cmd_publish(tag: str, source: Path) -> None:
         if len(found) != 1:
             sys.exit(f"publish: expected exactly one {name} under {source}, actual {[str(p) for p in found]}")
         files.append(str(found[0]))
-    sh(["gh", "release", "create", tag, "--verify-tag", "--generate-notes", "--title", tag, *files],
+    notes_file = DIST / f"{tag}-notes.md"
+    notes_file.parent.mkdir(parents=True, exist_ok=True)
+    notes_file.write_text(notes, encoding="utf-8")
+    sh(["gh", "release", "create", tag, "--verify-tag", "--notes-file", str(notes_file), "--title", tag, *files],
        "gh release create")
 
 
